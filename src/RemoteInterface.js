@@ -22,7 +22,7 @@ class RemoteInterface {
   launchServer() {
     this.server = net.createServer((socket) => {
       // Important: This error handler  is different than the one below! - KV
-      socket.on('error', (err) => {
+      socket.on('error', () => {
         // ignore errors! - Without this callback, we can get a ECONNRESET error that crashes the server - KV
       })
     })
@@ -63,6 +63,15 @@ class RemoteInterface {
 
     client.on('data', this.handleClientData.bind(this, client))
     client.on('end', this.handleClientEnded.bind(this, client))
+
+    // broadcast to all clients
+    this.clients.forEach((c) => {
+
+      if (c !== client) {
+        c.write(`new client connected: ${client.name}\n`)
+      }
+
+    });
   }
 
   handleClientData(client, data) {
